@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Peer To Peer</string>
+    <string name="createQRCode">Création de code QR</string>
+    <string name="receiveQRCode">Récupéartion de code QR</string>
+    <string name="back">Retour</string>
+    <string name="viewPairedList">Visualiser la liste de pairs</string>
+    <string name="pairingListTop">Nom | Adresse Ip | Distance | Connecter</string>
+    <string name="accesPairFiles">Accéder aux fichiers</string>
+    <string name="sharePairingList">Partager la liste de contacts</string>
+</resources>

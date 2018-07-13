@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/topTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="@string/pairingListTop"
+        android:textSize="20sp"
+        android:textStyle="bold"/>
+
+    <ListView
+        android:id="@+id/pairedTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/topTitle"
+        android:layout_marginLeft="10dp"
+        />
+
+    <Button
+        android:id="@+id/btn_back_pairingview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="@string/back" />
+
+    <!--
+    <LinearLayout
+        android:id="@+id/buttonLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="80dp"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/accesFile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/accesPairFiles" />
+
+        <Button
+            android:id="@+id/sharePairList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sharePairingList" />
+    </LinearLayout>
+    !-->
+
+</RelativeLayout>

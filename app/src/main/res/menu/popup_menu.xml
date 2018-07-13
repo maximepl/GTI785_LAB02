@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/accesFile"
+        android:title="@string/accesPairFiles"/>
+
+    <item
+        android:id="@+id/sharePairList"
+        android:title="@string/sharePairingList"/>
+
+</menu>

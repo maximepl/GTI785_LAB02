@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btn_createQRCode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/createQRCode" />
+
+        <Button
+            android:id="@+id/btn_receiveQRCode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/receiveQRCode"/>
+
+        <Button
+            android:id="@+id/btn_viewPairedList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/viewPairedList" />
+
+        <Button
+            android:id="@+id/button4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Button" />
+
+        <Button
+            android:id="@+id/testBlueTooth"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tester bluetooth" />
+
+        <Button
+            android:id="@+id/button6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Get Item List" />
+    </LinearLayout>
+</RelativeLayout>
