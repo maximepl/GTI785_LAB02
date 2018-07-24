@@ -2,8 +2,10 @@ package maxandalex.peertopeer;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
+import android.os.ParcelUuid;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +14,9 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Set;
 
 import maxandalex.peertopeer.QrCode.GeneratedQRCode;
@@ -24,6 +29,10 @@ public class MainActivity extends AppCompatActivity {
     private Button btn_CreateQRCode, btn_ReadQRCode, btn_ViewPairedList, btn_GetItemList, btn_TestBluetooth;
     private static Context myContext;
     private final static int REQUEST_ENABLE_BT = 1;
+
+
+    private InputStream inStream;
+    private OutputStream outputStream;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
         btn_TestBluetooth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
                 if (mBluetoothAdapter != null) {
                     if (!mBluetoothAdapter.isEnabled()) {
@@ -88,6 +98,22 @@ public class MainActivity extends AppCompatActivity {
                     for (BluetoothDevice device : pairedDevices) {
                         String deviceName = device.getName();
                         String deviceHardwareAddress = device.getAddress(); // MAC address
+                        Log.i("BLUETOOTH", "Get paired device name: " + deviceName + " " + deviceHardwareAddress);
+
+                        //TODO TESTER EN CHANGEANT LE TRUE PAR LE NOM DE L'AUTRE DEVICE
+                        if(true){
+                            ParcelUuid[] uuids = device.getUuids(); //(uuids[0].getUuid())
+                            try {
+                                BluetoothSocket socket = device.createRfcommSocketToServiceRecord(uuids[0].getUuid());
+                                socket.connect();
+
+                                outputStream = socket.getOutputStream();
+                                inStream = socket.getInputStream();
+
+                            } catch (IOException e) {
+                                Log.e("FuckMeSideWays", "Error occurred when creating input stream", e);
+                            }
+                        }
                     }
                 }
 
@@ -96,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //TODO SEEMS NOT TO WORK HUMMMM
+        //Server starter
         Server.StartServer();
     }
 

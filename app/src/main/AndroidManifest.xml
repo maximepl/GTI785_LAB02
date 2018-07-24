@@ -43,6 +43,10 @@
             android:name=".PairingView"
             android:label="Liste des pairs">
         </activity>
+        <activity
+            android:name=".PairItemListView"
+            android:label="Liste de fichiers">
+        </activity>
     </application>
 
 </manifest>

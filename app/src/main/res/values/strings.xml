@@ -7,4 +7,5 @@
     <string name="pairingListTop">Nom | Adresse Ip | Distance | Connecter</string>
     <string name="accesPairFiles">Accéder aux fichiers</string>
     <string name="sharePairingList">Partager la liste de contacts</string>
+    <string name="pairItemListTop">Fichier de : </string>
 </resources>

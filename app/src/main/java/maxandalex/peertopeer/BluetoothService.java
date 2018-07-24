@@ -12,7 +12,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.logging.Handler;
 
-public class BluetoothService  extends AppCompatActivity {
+public abstract class BluetoothService  extends AppCompatActivity {
 
     private static final String TAG = "MY_APP_DEBUG_TAG";
     private Handler mHandler;
@@ -24,7 +24,7 @@ public class BluetoothService  extends AppCompatActivity {
         public static final int MESSAGE_TOAST = 2;
     }
 
-    private class ConnectedThread extends Thread {
+    public class ConnectedThread extends Thread {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
@@ -71,7 +71,18 @@ public class BluetoothService  extends AppCompatActivity {
                 mmOutStream.write(bytes);
             } catch (IOException e) {
                 Log.e(TAG, "Error occurred when sending data", e);
-                Toast.makeText(getApplicationContext(), "Erreur lors de l'envoie de donnéess", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Erreur lors de l'envoie de données", Toast.LENGTH_SHORT).show();
+
+            }
+        }
+
+        // Call this from the main activity to send data to the remote device.
+        public void read(byte[] bytes) {
+            try {
+                mmInStream.read(bytes);
+            } catch (IOException e) {
+                Log.e(TAG, "Error occurred when reading data", e);
+                Toast.makeText(getApplicationContext(), "Erreur lors de la réception de données", Toast.LENGTH_SHORT).show();
 
             }
         }
