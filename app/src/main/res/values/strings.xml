@@ -8,4 +8,8 @@
     <string name="accesPairFiles">Accéder aux fichiers</string>
     <string name="sharePairingList">Partager la liste de contacts</string>
     <string name="pairItemListTop">Fichier de : </string>
+    <string name="name">Nom</string>
+    <string name="ipAdress">Adresse Ip</string>
+    <string name="distance">Distance</string>
+
 </resources>

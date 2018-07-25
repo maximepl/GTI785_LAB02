@@ -39,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         MainActivity.myContext = getApplicationContext();
+        Contact.contactList.clear();
+        CSVParser.ImportCSVToList();
 
         btn_CreateQRCode = (Button) findViewById(R.id.btn_createQRCode);
         btn_ReadQRCode = (Button) findViewById(R.id.btn_receiveQRCode);

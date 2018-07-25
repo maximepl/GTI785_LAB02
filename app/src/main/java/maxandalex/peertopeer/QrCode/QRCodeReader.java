@@ -28,6 +28,7 @@ import com.google.zxing.qrcode.encoder.QRCode;
 
 import java.io.IOException;
 
+import maxandalex.peertopeer.CSVParser;
 import maxandalex.peertopeer.Contact;
 import maxandalex.peertopeer.R;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
@@ -117,6 +118,8 @@ public class QRCodeReader extends AppCompatActivity {
                     txtResult.post(new Runnable() {
                         @Override
                         public void run() {
+                            cameraSource.stop();
+                            cameraSource.release();
                             finish();
                             Vibrator vibrator = (Vibrator)getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
                             //vibrator.vibrate(500);
@@ -127,16 +130,17 @@ public class QRCodeReader extends AppCompatActivity {
                             qrCodeResult[2] = qrCodeResult[2].substring(3);
                             Toast.makeText(getApplicationContext(), qrCodeResult[1] + " a été ajouté à votre liste de pairs", Toast.LENGTH_SHORT).show();
                             Contact receivedContact = new Contact(qrCodeResult[0], qrCodeResult[1], qrCodeResult[2]);
-                                Contact.contactList.clear();
 
                             if(Contact.contactList.size() == 0){
                                 Contact.contactList.add(receivedContact);
+                                CSVParser.ExportListToCSV(Contact.contactList, false, true);
                             } else {
                                 for(int i = 0; i < Contact.contactList.size(); i++){
                                     if(Contact.contactList.get(i).getId() == qrCodeResult[0]){
                                         Toast.makeText(getApplicationContext(), qrCodeResult[1] + " est déjà dans votre liste de pairs", Toast.LENGTH_SHORT).show();
                                     } else {
                                         Contact.contactList.add(receivedContact);
+                                        CSVParser.ExportListToCSV(Contact.contactList, false, true);
                                     }
 
                                 }

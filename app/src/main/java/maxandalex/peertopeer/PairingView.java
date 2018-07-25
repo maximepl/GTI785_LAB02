@@ -6,27 +6,38 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 
 import maxandalex.peertopeer.Server.FilesList;
 import maxandalex.peertopeer.Server.Tasker;
 
 public class PairingView extends AppCompatActivity {
 
-    private Button btn_Back;
+    private Button btn_Back, btn_filter_name, btn_filter_ip, btn_filter_distance;
     private ListView txt_PairedList;
+    private ImageButton btn_Refresh;
+
+    private boolean isNameFilter = false;
+    private boolean isIpFilter = false;
+    private boolean isDistanceFilter = false;
 
     private ArrayList<String> pairingNames = new ArrayList<>();
+    private ArrayList<Contact> pv_ContactList = new ArrayList<>();
     private String pairFiles;
     private String pairIpAdress;
     private String isOnline = "\u25CF"; //"\u25CF"=big bullet "\u25A0"=big square
@@ -38,7 +49,13 @@ public class PairingView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pairingview);
 
+        pv_ContactList = Contact.contactList;
+
         btn_Back = findViewById(R.id.btn_back_pairingview);
+        btn_Refresh = findViewById(R.id.btn_refresh);
+        btn_filter_name = findViewById(R.id.btn_filter_name);
+        btn_filter_ip = findViewById(R.id.btn_filter_ip);
+        btn_filter_distance = findViewById(R.id.btn_filter_distance);
         txt_PairedList = findViewById(R.id.pairedTextView);
         //isOnline = getResources().getDrawable(R.drawable.connectioncircle);
 
@@ -49,59 +66,125 @@ public class PairingView extends AppCompatActivity {
             }
         });
 
+        btn_Refresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO FAIRE LE PING DE TOUS LES CONTACTS!
+                showList();
+            }
+        });
+
+        btn_filter_name.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isNameFilter){
+                    Collections.sort(pairingNames, Collections.<String>reverseOrder());
+                    refreshAdapter();
+                    isNameFilter = false;
+                } else {
+                    Collections.sort(pairingNames);
+                    refreshAdapter();
+                    isNameFilter = true;
+                }
+            }
+        });
+
+        btn_filter_ip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isIpFilter){
+                    Collections.sort(pv_ContactList, new SortByIpDesc());
+                    showList();
+                    isIpFilter = false;
+                } else {
+                    Collections.sort(pv_ContactList, new SortByIpAsc());
+                    showList();
+                    isIpFilter = true;
+                }
+            }
+        });
+
+        btn_filter_distance.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isDistanceFilter){
+                    Collections.sort(pv_ContactList, new SortByDistDesc());
+                    showList();
+                    isDistanceFilter = false;
+                } else {
+                    Collections.sort(pv_ContactList, new SortByDistAsc());
+                    showList();
+                    isDistanceFilter = true;
+                }
+            }
+        });
+
 
         //TODO TESTING PURPOSE
-        Contact.contactList.add(new Contact("asdasd", "Richard", "160.105.123.23"));
+        //Contact.contactList.add(new Contact("Asselin", "Asselinonino", "160.105.123.23"));
 
-        if(Contact.contactList.size() != 0){
-            for(int i = 0; i < Contact.contactList.size(); i++){
-                if(!Contact.contactList.get(i).isOnline()){
+        showList();
+    }
+
+    private void showList(){
+        pairingNames.clear();
+        if(pv_ContactList.size() != 0){
+            for(int i = 0; i < pv_ContactList.size(); i++){
+                if(!pv_ContactList.get(i).isOnline()){
                     isOnline = "\u25A0";
                 }
 
-                pairingNames.add(Contact.contactList.get(i).getName() + " | "
-                                + Contact.contactList.get(i).getIp() + " | "
-                                + Contact.contactList.get(i).getDistance() + " | "
+                pairingNames.add(pv_ContactList.get(i).getName() + " | "
+                        + pv_ContactList.get(i).getIp() + " | "
+                        + pv_ContactList.get(i).getDistance() + " | "
                         + isOnline); //TODO - FIX POUR VOIR LES CERCLES ROUGE OU VERT
+
+                refreshAdapter();
             }
+        } else {
+            Toast.makeText(getApplicationContext(), "Votre liste de contact est vide, veuillez en ajouter", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+    }
 
-            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
-                    this,
-                    android.R.layout.simple_list_item_1,
-                    pairingNames);
+    private void refreshAdapter(){
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_list_item_1,
+                pairingNames);
 
-            txt_PairedList.setAdapter(arrayAdapter);
-            txt_PairedList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                    if(pairingNames.get(position).contains("\u25CF")){
-                        PopupMenu popMenu = new PopupMenu(PairingView.this,view);
-                        popMenu.getMenuInflater().inflate(R.menu.popup_menu, popMenu.getMenu());
+        txt_PairedList.setAdapter(arrayAdapter);
+        txt_PairedList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                if(pairingNames.get(position).contains("\u25CF")){
+                    PopupMenu popMenu = new PopupMenu(PairingView.this,view);
+                    popMenu.getMenuInflater().inflate(R.menu.popup_menu, popMenu.getMenu());
 
-                        popMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                            @Override
-                            public boolean onMenuItemClick(MenuItem item) {
-                                if(item.getTitle().charAt(0) == 'A'){
+                    popMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            if(item.getTitle().charAt(0) == 'A'){
 
-                                    pairIpAdress = Contact.contactList.get(position).getIp();
+                                pairIpAdress = pv_ContactList.get(position).getIp();
 
-                                    //TODO CHANGER ICI POUR METTRE LE RESULT DU TASKER POUR AVOIR LES FILES
-                                    //TODO DES AUTRES ÉQUIPES DANS UNE LISTE
-                                    pairFiles =  FilesList.listToJson();
-
-
-                                    Intent intent = new Intent(PairingView.this, PairItemListView.class);
-                                    intent.putExtra("pairName", Contact.contactList.get(position).getName());
-                                    intent.putExtra("pairFiles", pairFiles);
-                                    intent.putExtra("pairIpAdress", pairIpAdress);
-                                    startActivity(intent);
-
-                                    //TODO SAVOIR LE LIENS DES AUTRES EQUIPES
-                                    new Tasker.GetFiles().execute("http://" + pairIpAdress + "/getFileList/");
+                                //TODO CHANGER ICI POUR METTRE LE RESULT DU TASKER POUR AVOIR LES FILES
+                                //TODO DES AUTRES ÉQUIPES DANS UNE LISTE
+                                pairFiles =  FilesList.listToJson();
 
 
-                                } else {
-                                    //TODO FAIRE LE HANDLER DE PARTAGE DE LISTE DE CONTACT AVEC BLUETOOTH
+                                Intent intent = new Intent(PairingView.this, PairItemListView.class);
+                                intent.putExtra("pairName", pv_ContactList.get(position).getName());
+                                intent.putExtra("pairFiles", pairFiles);
+                                intent.putExtra("pairIpAdress", pairIpAdress);
+                                startActivity(intent);
+
+                                //TODO SAVOIR LE LIENS DES AUTRES EQUIPES
+                                new Tasker.GetFiles().execute("http://" + pairIpAdress + "/getFileList/");
+
+
+                            } else {
+                                //TODO FAIRE LE HANDLER DE PARTAGE DE LISTE DE CONTACT AVEC BLUETOOTH
 
                                     /*BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
                                     if (mBluetoothAdapter != null) {
@@ -135,19 +218,37 @@ public class PairingView extends AppCompatActivity {
                                             }
                                         }
                                     }*/
-                                }
-                                return true;
                             }
-                        });
-                        popMenu.show();
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Le pair n'est pas en ligne", Toast.LENGTH_SHORT).show();
-                    }
+                            return true;
+                        }
+                    });
+                    popMenu.show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Le pair n'est pas en ligne", Toast.LENGTH_SHORT).show();
                 }
-            });
-        } else {
-            Toast.makeText(getApplicationContext(), "Votre liste de contact est vide, veuillez en ajouter", Toast.LENGTH_SHORT).show();
-            finish();
+            }
+        });
+    }
+
+    class SortByIpAsc implements Comparator<Contact>{
+        public int compare(Contact a, Contact b){
+            return String.valueOf(a.getIp()).compareTo(String.valueOf(b.getIp()));
+        }
+    }
+    class SortByIpDesc implements Comparator<Contact>{
+        public int compare(Contact a, Contact b){
+            return String.valueOf(b.getIp()).compareTo(String.valueOf(a.getIp()));
+        }
+    }
+
+    class SortByDistAsc implements Comparator<Contact>{
+        public int compare(Contact a, Contact b){
+            return Double.valueOf(a.getDistance()).compareTo(Double.valueOf(b.getDistance()));
+        }
+    }
+    class SortByDistDesc implements Comparator<Contact>{
+        public int compare(Contact a, Contact b){
+            return Double.valueOf(b.getDistance()).compareTo(Double.valueOf(a.getDistance()));
         }
     }
 }

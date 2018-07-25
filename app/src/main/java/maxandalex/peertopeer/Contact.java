@@ -1,6 +1,8 @@
 package maxandalex.peertopeer;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Contact {
     private String ip;
@@ -13,11 +15,15 @@ public class Contact {
     public static ArrayList<Contact> contactList = new ArrayList<>();
 
     public Contact(String id, String name, String ip) {
+
+        Random r = new Random();
+        double randomValue = 100 + (200 - 100) * r.nextDouble();
+
         this.id = id;
         this.ip = ip;
         this.name = name;
         this.online = true;
-        this.distance = 100;
+        this.distance = Double.parseDouble(new DecimalFormat("##.##").format(randomValue));
     }
 
     //public Contact(String information) {
