@@ -23,7 +23,8 @@ public class Contact {
         this.ip = ip;
         this.name = name;
         this.online = true;
-        this.distance = Double.parseDouble(new DecimalFormat("##.##").format(randomValue));
+        this.distance = 100;
+        //this.distance = Double.parseDouble(new DecimalFormat("##.##").format(randomValue));
     }
 
     //public Contact(String information) {

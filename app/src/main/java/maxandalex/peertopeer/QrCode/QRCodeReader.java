@@ -125,6 +125,7 @@ public class QRCodeReader extends AppCompatActivity {
                             //vibrator.vibrate(500);
                             String[] qrCodeResult;
                             qrCodeResult = qrCodes.valueAt(0).displayValue.split(",");
+                            Log.i("txtResult", "displayValue: " + qrCodes.valueAt(0).displayValue);
                             qrCodeResult[0] = qrCodeResult[0].substring(3);
                             qrCodeResult[1] = qrCodeResult[1].substring(5);
                             qrCodeResult[2] = qrCodeResult[2].substring(3);

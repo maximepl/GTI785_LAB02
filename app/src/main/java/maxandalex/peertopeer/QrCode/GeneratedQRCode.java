@@ -43,7 +43,7 @@ public class GeneratedQRCode extends AppCompatActivity {
         try {
             ipAdress = getLocalIpAddress();
             iD = getDeviceId();
-            qrString = "id=" + iD + "," + "name=Maxime,ip=" + ipAdress;
+            qrString = "id=" + iD + "," + "name=Christine,ip=" + ipAdress + ":8080";
             bitmap = TextToImageEncode(qrString);
             imgView.setImageBitmap(bitmap);
         } catch (WriterException e) {

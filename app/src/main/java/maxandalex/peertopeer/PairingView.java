@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -18,6 +19,7 @@ import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,9 +34,12 @@ public class PairingView extends AppCompatActivity {
     private ListView txt_PairedList;
     private ImageButton btn_Refresh;
 
+    private Double distance;
+
     private boolean isNameFilter = false;
     private boolean isIpFilter = false;
     private boolean isDistanceFilter = false;
+    private boolean isResponseReturned = false;
 
     private ArrayList<String> pairingNames = new ArrayList<>();
     private ArrayList<Contact> pv_ContactList = new ArrayList<>();
@@ -133,10 +138,23 @@ public class PairingView extends AppCompatActivity {
                 if(!pv_ContactList.get(i).isOnline()){
                     isOnline = "\u25A0";
                 }
+                try{
+                    new Tasker.GetFiles().execute("http://" + pv_ContactList.get(i).getIp() + "/getPosition/").get();
+                } catch (java.lang.InterruptedException e){
+                } catch (java.util.concurrent.ExecutionException e){
+                }
+                String[] taskerResonse = Tasker.response.split(",");
+                Double longitude = Double.parseDouble(taskerResonse[0]);
+                Double latitude = Double.parseDouble(taskerResonse[1]);
+                Location loc = new Location("pairLoc");
+                loc.setLongitude(longitude);
+                loc.setLatitude(latitude);
+                distance = Double.parseDouble(new DecimalFormat("##.##").format(LocationService.getLocation().distanceTo(loc)));
+                Log.i("distance", "distance: " + distance);
 
                 pairingNames.add(pv_ContactList.get(i).getName() + " | "
                         + pv_ContactList.get(i).getIp() + " | "
-                        + pv_ContactList.get(i).getDistance() + " | "
+                        + distance + " | "
                         + isOnline); //TODO - FIX POUR VOIR LES CERCLES ROUGE OU VERT
 
                 refreshAdapter();
@@ -168,21 +186,20 @@ public class PairingView extends AppCompatActivity {
 
                                 pairIpAdress = pv_ContactList.get(position).getIp();
 
-                                //TODO CHANGER ICI POUR METTRE LE RESULT DU TASKER POUR AVOIR LES FILES
-                                //TODO DES AUTRES ÉQUIPES DANS UNE LISTE
-                                pairFiles =  FilesList.listToJson();
-
+                                //TODO TESTING PURPOSE
+                                //pairFiles =  FilesList.listToJson();
+                                try{
+                                    new Tasker.GetFiles().execute("http://" + pairIpAdress + "/getFileList/").get();
+                                } catch (java.lang.InterruptedException e){
+                                } catch (java.util.concurrent.ExecutionException e){
+                                }
+                                pairFiles = Tasker.response;
 
                                 Intent intent = new Intent(PairingView.this, PairItemListView.class);
                                 intent.putExtra("pairName", pv_ContactList.get(position).getName());
                                 intent.putExtra("pairFiles", pairFiles);
                                 intent.putExtra("pairIpAdress", pairIpAdress);
                                 startActivity(intent);
-
-                                //TODO SAVOIR LE LIENS DES AUTRES EQUIPES
-                                new Tasker.GetFiles().execute("http://" + pairIpAdress + "/getFileList/");
-
-
                             } else {
                                 //TODO FAIRE LE HANDLER DE PARTAGE DE LISTE DE CONTACT AVEC BLUETOOTH
 
@@ -228,6 +245,23 @@ public class PairingView extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private Double getComaparedDistance(String ip){
+        try{
+            new Tasker.GetFiles().execute("http://" + ip + "/getPosition/").get();
+        } catch (java.lang.InterruptedException e){
+        } catch (java.util.concurrent.ExecutionException e){
+        }
+        String[] taskerResonse = Tasker.response.split(",");
+        Double longitude = Double.parseDouble(taskerResonse[0]);
+        Double latitude = Double.parseDouble(taskerResonse[1]);
+        Location loc = new Location("pairLoc");
+        loc.setLongitude(longitude);
+        loc.setLatitude(latitude);
+        distance = Double.parseDouble(new DecimalFormat("##.##").format(LocationService.getLocation().distanceTo(loc)));
+        Log.i("distance", "distance: " + distance);
+        return distance;
     }
 
     class SortByIpAsc implements Comparator<Contact>{

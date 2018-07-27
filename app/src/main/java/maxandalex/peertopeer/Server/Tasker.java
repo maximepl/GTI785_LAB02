@@ -13,6 +13,8 @@ import java.net.URL;
 
 public class Tasker {
 
+    public static String response;
+
     // Inspirer du vidéo https://www.youtube.com/watch?v=_7r_vdwmW0o
     public static class GetFiles extends AsyncTask<String, String, String> {
         @Override
@@ -35,7 +37,8 @@ public class Tasker {
                 while((line = reader.readLine()) != null){
                     buffer.append(line);
                 }
-
+                Log.d("TASKER", "doInBackground() returned: " + buffer.toString());
+                response = buffer.toString();
                 return buffer.toString();
 
             }catch(MalformedURLException e){
@@ -58,8 +61,8 @@ public class Tasker {
 
         @Override
         protected void onPostExecute(String result){
-            super.onPostExecute(result);
             Log.i("SERVER","Server result" + result);
+            super.onPostExecute(result);
         }
     }
 }

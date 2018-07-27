@@ -1,11 +1,20 @@
 package maxandalex.peertopeer;
 
+import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.ParcelUuid;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Set;
+import java.util.UUID;
 
 import maxandalex.peertopeer.QrCode.GeneratedQRCode;
 import maxandalex.peertopeer.QrCode.QRCodeReader;
@@ -29,10 +39,9 @@ public class MainActivity extends AppCompatActivity {
     private Button btn_CreateQRCode, btn_ReadQRCode, btn_ViewPairedList, btn_GetItemList, btn_TestBluetooth;
     private static Context myContext;
     private final static int REQUEST_ENABLE_BT = 1;
-
-
     private InputStream inStream;
     private OutputStream outputStream;
+    private static final UUID MY_UUID = UUID.fromString("0000110a-0000-1000-8000-00805f9b34fb");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         MainActivity.myContext = getApplicationContext();
         Contact.contactList.clear();
         CSVParser.ImportCSVToList();
+        LocationService.getLocationManager(getAppContext());
 
         btn_CreateQRCode = (Button) findViewById(R.id.btn_createQRCode);
         btn_ReadQRCode = (Button) findViewById(R.id.btn_receiveQRCode);
@@ -76,15 +86,18 @@ public class MainActivity extends AppCompatActivity {
         btn_GetItemList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                File[] fileList;
+                /*File[] fileList;
                 fileList = FilesList.getFileList();
-                Log.i("FILELIST", "Voici la file list : " + fileList[10].getName());
+                Log.i("FILELIST", "Voici la file list : " + fileList[10].getName());*/
+                Log.i("LocationService", "Ma location" + LocationService.getLocation());
             }
         });
+
 
         btn_TestBluetooth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
 
                 BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
                 if (mBluetoothAdapter != null) {
@@ -96,25 +109,15 @@ public class MainActivity extends AppCompatActivity {
 
                 Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
                 if (pairedDevices.size() > 0) {
-                    // There are paired devices. Get the name and address of each paired device.
                     for (BluetoothDevice device : pairedDevices) {
                         String deviceName = device.getName();
                         String deviceHardwareAddress = device.getAddress(); // MAC address
-                        Log.i("BLUETOOTH", "Get paired device name: " + deviceName + " " + deviceHardwareAddress);
 
                         //TODO TESTER EN CHANGEANT LE TRUE PAR LE NOM DE L'AUTRE DEVICE
-                        if(true){
-                            ParcelUuid[] uuids = device.getUuids(); //(uuids[0].getUuid())
-                            try {
-                                BluetoothSocket socket = device.createRfcommSocketToServiceRecord(uuids[0].getUuid());
-                                socket.connect();
+                        if(deviceHardwareAddress.equals("3C:FA:43:73:16:E0")){
+                            Log.i("BluetoothDevice", "DeviceName : " + deviceName);
+                            BluetoothConnection bc = new BluetoothConnection(device);
 
-                                outputStream = socket.getOutputStream();
-                                inStream = socket.getInputStream();
-
-                            } catch (IOException e) {
-                                Log.e("FuckMeSideWays", "Error occurred when creating input stream", e);
-                            }
                         }
                     }
                 }
@@ -123,7 +126,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
         //Server starter
         Server.StartServer();
     }
@@ -144,6 +146,9 @@ public class MainActivity extends AppCompatActivity {
 
     public static Context getAppContext() {
         return MainActivity.myContext;
+    }
+    private boolean hasPermission(String perm) {
+        return(PackageManager.PERMISSION_GRANTED==checkSelfPermission(perm));
     }
 
 }

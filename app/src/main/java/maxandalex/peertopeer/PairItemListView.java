@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -72,30 +73,32 @@ public class PairItemListView extends AppCompatActivity {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
 
-                    Log.i("onItemClick", "Click on : " + pairFileList[position].getAbsolutePath());
-                    //TODO SAVOIR LE LIENS DES AUTRES EQUIPES
+                    Log.i("onItemClick", "Clicked on : " + pairFileList[position].getAbsolutePath());
+                    Log.i("onItemClick", "Clicked on : " + pairFileList[position].getName());
 
-                    Uri uri = Uri.parse("http://" + pairIpAdress + "/getFile/" + pairFileList[position].getPath());
-                    //Uri uri = Uri.parse("http://" + pairIpAdress + "/getFile/" + "$path" +  pairFileList[position].getPath());
-
-                    Log.i("DM_REQUEST", "duri: " + uri);
-                    /*DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                    Uri uri = Uri.parse("http://" + pairIpAdress + "/getFile" + pairFileList[position].getPath());
+                    DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                     DownloadManager.Request request = new DownloadManager.Request(uri);
-                    request.setTitle()
+                    request.setTitle(pairFileList[position].getName().substring(0,pairFileList[position].getName().length()-4));
                     request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                     request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, pairFileList[position].getName());
-                    request.setMimeType()
+                    request.setMimeType(getMimeFromFileName(pairFileList[position].getName().toLowerCase()));
 
                     try {
                         dm.enqueue(request);
-                    } catch (java.lang.NullPointerException){
+                    } catch (java.lang.NullPointerException e){
                         Log.i("DM_REQUEST", "dm.enqueue(request): " + "Problème lors de l'accès au fichier");
-                    }*/
+                    }
                 }
             });
         } else {
             Toast.makeText(getApplicationContext(), "Le transfert de la liste de fichier a échoué, veuillez essayer de nouveau", Toast.LENGTH_SHORT).show();
             finish();
         }
+    }
+    private String getMimeFromFileName(String fileName) {
+        MimeTypeMap map = MimeTypeMap.getSingleton();
+        String ext = MimeTypeMap.getFileExtensionFromUrl(fileName);
+        return map.getMimeTypeFromExtension(ext);
     }
 }
